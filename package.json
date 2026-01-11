@@ -1,0 +1,24 @@
+{
+  "name": "chatroom-web-app",
+  "version": "1.0.0",
+  "description": "Full-stack chatroom web application built with Node.js, Express.js, EJS, and MySQL. Includes user registration, session-based authentication, REST API for chat messages, polling-based updates, and full CRUD operations following MVC architecture.",
+  "homepage": "https://github.com/samuel9974/chatroom-web-app#readme",
+  "bugs": {
+    "url": "https://github.com/samuel9974/chatroom-web-app/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samuel9974/chatroom-web-app.git"
+  },
+  "license": "ISC",
+  "author": "Samuel Webaneh",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.2.1"
+  }
+}
