@@ -1,6 +1,9 @@
+const e = require("express");
+
 exports.getLogin = (req, res) => {
   try {
-    res.render("login");
+    const message = req.query.message;
+    res.render("login", { message: message || null });
   } catch (error) {
     res.status(500).render("error", { error: error.message });
   }
@@ -15,7 +18,6 @@ exports.getSignup = (req, res) => {
 // Handle signup form submission (POST /register) - go to password page
 exports.postRegisterForm = (req, res) => {
   try {
-    const { email, firstName, lastName } = req.body;
     res.redirect("/signup-password");
   } catch (error) {
     res.status(500).render("error", { error: error.message });
@@ -31,18 +33,17 @@ exports.getSignupPassword = (req, res) => {
   }
 };
 
-// Handle password form submission (POST /signup-password)
-exports.postSignupPassword = (req, res) => {
+exports.completeRegisterForm = (req, res) => {
   try {
-    const { password, confirmPassword } = req.body;
-    if (password !== confirmPassword) {
-      return res.render("signup-password", { error: "Passwords do not match" });
-    }
-    res.redirect("/login");
+    // Here you would normally handle the registration logic (e.g., save user to DB)      
+    res.redirect("/login?message=registered");
   } catch (error) {
     res.status(500).render("error", { error: error.message });
-  }
-};
+  } 
+};  
+
+
+
 
 
 

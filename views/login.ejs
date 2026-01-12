@@ -22,7 +22,13 @@
               <h2 class="mb-0">
                 <i class="bi bi-chat-dots-fill"></i> Chatroom
               </h2>
-              <p class="mb-0 mt-2">Welcome Back</p>
+              <p class="mb-0 mt-2">
+                <% if (message && message === "registered") { %>
+                  Successfully Registered! Log In Now
+                <% } else { %>
+                  Welcome Back
+                <% } %>
+              </p>
             </div>
             <div class="card-body p-5">
               <form action="/login" method="POST">
