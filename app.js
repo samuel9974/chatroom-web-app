@@ -7,13 +7,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// Session setup
+const session = require('express-session');
+app.use(session({
+  secret: 'yourSecretKey',
+  resave: false,
+  saveUninitialized: true
+}));
+
 // View engine setup (using EJS)
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // Routes
-const chatRoutes = require("./routes/authRoutes");
-app.use("/", chatRoutes);
+const userAuthRoutes = require("./routes/authRoutes");
+app.use("/", userAuthRoutes);
 
 // 404 handler
 app.use((req, res) => {
