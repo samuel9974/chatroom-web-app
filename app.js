@@ -21,7 +21,10 @@ app.set("views", path.join(__dirname, "views"));
 
 // Routes
 const userAuthRoutes = require("./routes/authRoutes");
+const userchatRouters = require("./routes/chatRouters");
+
 app.use("/", userAuthRoutes);
+app.use("/chat", userchatRouters);
 
 // 404 handler
 app.use((req, res) => {

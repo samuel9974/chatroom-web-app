@@ -1,12 +1,27 @@
+// Logout controller
+exports.logout = (req, res) => {
+  req.session.destroy(() => {
+    res.status(200).end();
+  });
+};
 const e = require("express");
 const db = require("../db");
-// Test MySQL connection
-exports.testDb = async (req, res) => {
+// Test MySQL connectionf
+
+exports.login = async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT 1 AS test");
-    res.send("DB connection OK! Result: " + JSON.stringify(rows));
+    const { email, password } = req.body;
+    const [users] = await db.query("SELECT * FROM users WHERE email = ?", [
+      email.toLowerCase(),
+    ]);
+    const user = users[0];
+    if (!user || user.password !== password) {
+      return res.render("login", { error: "Invalid email or password" });
+    }
+    req.session.userId = user.id;
+    res.redirect("/chat");
   } catch (error) {
-    res.status(500).send("DB connection error: " + error.message);
+    res.render("login", { error: error.message });
   }
 };
 
