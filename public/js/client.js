@@ -23,6 +23,12 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Connect search button by ID
+  const searchBtn = document.getElementById("searchBtn");
+  if (searchBtn) {
+    searchBtn.addEventListener("click", searchMessages);
+  }
 });
 
 // Logout function
@@ -34,10 +40,13 @@ async function logout() {
 async function sendMessage(event) {
   const messageInput = document.getElementById("messageInput");
   const content = messageInput.value.trim();
-  if (content === "") return;
-  // if (!content) return;
+  if (content === "") {
+    console.warn("Message is empty");
+    return;
+  }
 
   try {
+    console.log("Sending message:", content);
     // Send message to server
     const response = await fetch("/chat/messages", {
       method: "POST",
@@ -45,10 +54,16 @@ async function sendMessage(event) {
       body: JSON.stringify({ content }),
     });
 
+    console.log("Response status:", response.status);
+
     if (response.ok) {
       messageInput.value = "";
+      console.log("Message sent successfully, fetching messages...");
       // Refresh messages after sending a new one
-      fetchMessages();
+      await fetchMessages();
+    } else {
+      const errorText = await response.text();
+      console.error("Failed to send message:", response.status, errorText);
     }
   } catch (error) {
     console.error("Error sending message:", error);
@@ -70,33 +85,45 @@ async function fetchMessages() {
   }
 }
 
-function displayMessages(messages) {
+function displayMessages(messages, highlightQuery = null) {
   const messagesDiv = document.getElementById("messages");
   messagesDiv.innerHTML = messages
-    .map(
-      (message) => `
-              <div class="d-flex ${message.isOwner ? "justify-content-end" : "justify-content-start"} mb-2">
-                <div class="chat-bubble p-3 bg-primary text-white rounded-4 position-relative" style="word-break:break-word;white-space:pre-line;" >
+    .map((message) => {
+      const isHighlighted =
+        highlightQuery &&
+        message.content.toLowerCase().includes(highlightQuery.toLowerCase());
+      return `
+              <div class="d-flex ${message.isOwner ? "justify-content-end" : "justify-content-start"} mb-2" ${isHighlighted ? 'id="highlighted-message"' : ""}>
+                <div class="chat-bubble p-3 ${isHighlighted ? "bg-warning text-dark" : "bg-primary text-white"} rounded-4 position-relative" style="word-break:break-word;white-space:pre-line;${isHighlighted ? "box-shadow: 0 0 10px rgba(255, 193, 7, 0.8);" : ""}" >
             <div class="d-flex align-items-center mb-1">
-                <span class="fw-bold me-2 ${message.isOwner ? "text-warning" : "text-info"}">${message.User.firstName}:</span>
+                <span class="fw-bold me-2 ${message.isOwner ? (isHighlighted ? "text-danger" : "text-warning") : isHighlighted ? "text-danger" : "text-info"}">${message.User.firstName}:</span>
               <small class="text-muted ms-auto">${new Date(message.timestamp).toLocaleString()}</small>
             </div>
             <div class="mb-1">${message.content}</div>
             ${
               message.isOwner
                 ? `<div class="d-flex gap-1 justify-content-end mt-1">
-                    <button class="btn btn-sm btn-outline-light border-0 px-2 py-1" onclick="deleteMessage(${message.id})" title="Delete"><i class="bi bi-trash"></i></button>
-                    <button class="btn btn-sm btn-outline-light border-0 px-2 py-1" onclick="editMessage(${message.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-${isHighlighted ? "dark" : "light"} border-0 px-2 py-1" onclick="deleteMessage(${message.id})" title="Delete"><i class="bi bi-trash"></i></button>
+                    <button class="btn btn-sm btn-outline-${isHighlighted ? "dark" : "light"} border-0 px-2 py-1" onclick="editMessage(${message.id})" title="Edit"><i class="bi bi-pencil"></i></button>
                   </div>`
                 : ""
             }
           </div>
         </div>
-      `,
-    )
+      `;
+    })
     .join("");
-  // Scroll to bottom to show latest messages
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+  // If there's a highlight, scroll to it
+  if (highlightQuery) {
+    const highlightedMsg = document.getElementById("highlighted-message");
+    if (highlightedMsg) {
+      highlightedMsg.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  } else {
+    // Scroll to bottom for regular message fetch
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
 }
 
 async function deleteMessage(id) {
@@ -130,5 +157,26 @@ async function editMessage(id) {
     }
   } catch (error) {
     console.error("Error editing message:", error);
+  }
+}
+
+async function searchMessages(event) {
+  event.preventDefault();
+  const query = document.getElementById("searchInput").value.trim();
+  if (query === "") return;
+
+  try {
+    const response = await fetch(
+      `/chat/search?query=${encodeURIComponent(query)}`,
+    );
+    if (response.ok) {
+      const messages = await response.json();
+      console.log("Search results:", messages);
+      displayMessages(messages, query);
+    } else {
+      console.error("Failed to search messages");
+    }
+  } catch (error) {
+    console.error("Error searching messages:", error);
   }
 }

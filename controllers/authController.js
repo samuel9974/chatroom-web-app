@@ -15,20 +15,34 @@ exports.login = async (req, res) => {
       email.toLowerCase(),
     ]);
     const user = users[0];
-    if (!user || user.password !== password) {
-      return res.render("login", { error: "Invalid email or password" });
+
+    // Check if user exists
+    if (!user) {
+      return res.render("login", {
+        error: "Invalid email or password",
+        message: null,
+      });
     }
+
+    // Check if password is correct
+    if (user.password !== password) {
+      return res.render("login", {
+        error: "Invalid email or password",
+        message: null,
+      });
+    }
+
     req.session.userId = user.id;
     res.redirect("/chat");
   } catch (error) {
-    res.render("login", { error: error.message });
+    res.render("login", { error: error.message, message: null });
   }
 };
 
 exports.showLogin = (req, res) => {
   try {
     const message = req.query.message;
-    res.render("login", { message: message || null });
+    res.render("login", { message: message || null, error: null });
   } catch (error) {
     res.status(500).render("error", { error: error.message });
   }
@@ -98,7 +112,7 @@ exports.completeRegisterForm = async (req, res) => {
     // Save user to DB
     await db.query(
       "INSERT INTO users (email, firstName, lastName, password) VALUES (?, ?, ?, ?)",
-      [regData.email, regData.firstName, regData.lastName, password]
+      [regData.email, regData.firstName, regData.lastName, password],
     );
     // Clear registration data from session
     req.session.registrationData = null;
