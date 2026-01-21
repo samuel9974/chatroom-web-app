@@ -52,8 +52,8 @@
                   </button>
                 </form>
                 <button
+                  id="logoutBtn"
                   class="btn btn-outline-danger logout-btn"
-                  onclick="logout()"
                 >
                   <i class="bi bi-box-arrow-right me-2"></i>Logout
                 </button>
@@ -70,10 +70,7 @@
                   class="form-control form-control-lg chat-input"
                   placeholder="Type a message..."
                 />
-                <button
-                  class="btn btn-primary btn-lg send-btn"
-                  onclick="sendMessage()"
-                >
+                <button id="sendBtn" class="btn btn-primary btn-lg send-btn">
                   <i class="bi bi-send me-2"></i>Send
                 </button>
               </div>

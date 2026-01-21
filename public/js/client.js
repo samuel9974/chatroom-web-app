@@ -1,5 +1,29 @@
 // Fetch and display messages when the chatroom page loads
-window.addEventListener("DOMContentLoaded", fetchMessages);
+window.addEventListener("DOMContentLoaded", () => {
+  fetchMessages();
+
+  // Connect logout button by ID
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
+
+  // Connect send button by ID
+  const sendBtn = document.getElementById("sendBtn");
+  if (sendBtn) {
+    sendBtn.addEventListener("click", sendMessage);
+  }
+
+  // Allow sending message with Enter key
+  const messageInput = document.getElementById("messageInput");
+  if (messageInput) {
+    messageInput.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+  }
+});
 
 // Logout function
 async function logout() {
@@ -73,4 +97,38 @@ function displayMessages(messages) {
     .join("");
   // Scroll to bottom to show latest messages
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+async function deleteMessage(id) {
+  try {
+    const response = await fetch(`/chat/messages/${id}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      fetchMessages();
+    } else {
+      console.error("Failed to delete message");
+    }
+  } catch (error) {
+    console.error("Error deleting message:", error);
+  }
+}
+async function editMessage(id) {
+  const newContent = prompt("Edit your message:");
+  if (newContent === null || newContent.trim() === "") return;
+  try {
+    const response = await fetch(`/chat/messages/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: newContent.trim() }),
+    });
+    if (response.ok) {
+      fetchMessages();
+    } else {
+      console.error("Failed to edit message");
+    }
+  } catch (error) {
+    console.error("Error editing message:", error);
+  }
 }

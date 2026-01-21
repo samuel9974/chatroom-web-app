@@ -52,3 +52,39 @@ exports.getMessages = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.deleteMessage = async (req, res) => {
+  try {
+    const messageId = req.params.id;
+    const sql = "DELETE FROM messages WHERE id = ? AND user_id = ?";
+    const [result] = await db.query(sql, [messageId, req.session.userId]);
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ error: "Message not found or unauthorized" });
+    }
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.editMessage = async (req, res) => {
+  try {
+    const messageId = req.params.id;
+    const { content } = req.body;
+    const sql = "UPDATE messages SET content = ? WHERE id = ? AND user_id = ?";
+    const [result] = await db.query(sql, [
+      content,
+      messageId,
+      req.session.userId,
+    ]);
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ error: "Message not found or unauthorized" });
+    }
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

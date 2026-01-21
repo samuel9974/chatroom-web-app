@@ -6,5 +6,7 @@ const router = express.Router();
 router.get("/", chatController.showChatroom);
 router.post("/messages", chatController.createMessage);
 router.get("/messages", chatController.getMessages);
+router.delete("/messages/:id", chatController.deleteMessage);
+router.put("/messages/:id", chatController.editMessage);
 
 module.exports = router;
