@@ -1,5 +1,4 @@
 const db = require('./db');
-
 async function createTable() {
   try {
     await db.query(`
